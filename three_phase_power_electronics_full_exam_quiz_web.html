@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Power Electronics — Chapter 1: Exam Quiz</title>
+  <style>
+    :root{--bg:#0f1724;--card:#ffffff;--muted:#6b7280;--accent:#0ea5a3}
+    body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;background:linear-gradient(180deg,#071026 0%, #0b1220 100%);color:#e6eef6;margin:0;padding:32px}
+    .container{max-width:900px;margin:0 auto}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    .card{background:linear-gradient(180deg,#0b1926,#08121b);padding:18px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
+    .section{margin-top:14px}
+    .q{margin:12px 0;padding:10px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));}
+    label{display:block;font-weight:600;margin-bottom:6px}
+    .options{display:flex;flex-direction:column;gap:8px}
+    input[type='text'], input[type='number'], textarea{width:100%;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit}
+    .btn{display:inline-block;padding:10px 14px;border-radius:8px;background:var(--accent);color:#042022;font-weight:700;border:none;cursor:pointer}
+    .muted{color:var(--muted);font-size:13px}
+    footer{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap}
+    .result{margin-top:12px;padding:12px;border-radius:8px;background:linear-gradient(180deg,#02262a,#032f34);font-weight:700}
+    .small{font-size:13px}
+    .flex{display:flex;gap:8px;align-items:center}
+    .spacer{flex:1}
+    .export{background:transparent;border:1px solid rgba(255,255,255,0.06);color:inherit;padding:8px 10px;border-radius:8px}
+    .timer{font-weight:700;color:#facc15;margin-left:auto}
+    @media print{body{padding:6mm;background:white;color:black} .card{box-shadow:none;background:white;border:none} .btn, .export, .timer {display:none}} 
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="card" style="padding:10px 14px;display:flex;align-items:center;gap:12px;width:100%">
+        <div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(180deg,#06b6d4,#085b5f);display:flex;align-items:center;justify-content:center;font-weight:800;color:#022022">PE</div>
+        <div style="flex:1">
+          <h1>Power Electronics — Chapter 1: Exam (Interactive)</h1>
+          <div class="muted">Complete the quiz below. MCQs are auto-graded. Other sections are auto/manual as specified. Timer runs once you start.</div>
+        </div>
+        <div class="timer" id="timer">00:00</div>
+      </div>
+    </header>
+
+    <div class="card">
+      <form id="examForm">
+
+        <div class="section">
+          <h3>Student Login</h3>
+          <div class="q"><label>Name:</label><input type="text" name="studentName" required></div>
+          <div class="q"><label>Student ID:</label><input type="text" name="studentId" required></div>
+        </div>
+
+        <!-- Section D: MCQs (auto-grade) -->
+        <div class="section">
+          <h3>Section D — Multiple Choice (20 marks, auto-graded)</h3>
+          <div class="muted">Answer ALL. Each MCQ = 1 mark.</div>
+          <div id="mcqs"></div>
+        </div>
+
+        <!-- Section A: Short answers (manual marking) -->
+        <div class="section">
+          <h3>Section A — Short Answers (Choose 5, each 4 marks)</h3>
+          <div class="q">
+            <label>Q1. Define power electronics and list four conversions.</label>
+            <textarea rows="3" name="a1"></textarea>
+            <input type="number" min="0" max="4" step="0.25" class="score" data-question="A1" placeholder="Marks (0-4)">
+          </div>
+          <div class="q">
+            <label>Q2. Distinguish uncontrolled, semi-controlled, fully controlled devices.</label>
+            <textarea rows="2" name="a2"></textarea>
+            <input type="number" min="0" max="4" step="0.25" class="score" data-question="A2">
+          </div>
+        </div>
+
+        <!-- Section B with numeric auto-grading -->
+        <div class="section">
+          <h3>Section B — Calculations (4 x 10 marks)</h3>
+          <div class="q">
+            <label>Q8. If V_RN = 230∠0° V (star), calculate line voltages (answers: 398.37∠30°, 398.37∠-90°, 398.37∠150° approx)</label>
+            <textarea rows="2" name="b1"></textarea>
+            <input type="number" min="0" max="10" step="0.5" class="score auto" data-answer="398" data-question="B1" placeholder="Auto-graded">
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Section C — Problems (2 x 15 marks)</h3>
+          <div class="q">
+            <label>Q13. Explain reverse recovery characteristics (manual marking).</label>
+            <textarea rows="3" name="c1"></textarea>
+            <input type="number" min="0" max="15" step="0.5" class="score" data-question="C1">
+          </div>
+        </div>
+
+        <footer>
+          <button type="button" class="btn" id="gradeBtn">Calculate Final Mark</button>
+          <button type="button" class="export" id="saveBtn">Download CSV</button>
+          <button type="button" class="export" id="printBtn">Print / PDF</button>
+        </footer>
+
+        <div id="resultArea"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Timer
+    let seconds=0; let timerInt=setInterval(()=>{seconds++;let m=Math.floor(seconds/60);let s=seconds%60;document.getElementById('timer').textContent=(m<10?'0':'')+m+":"+(s<10?'0':'')+s;},1000);
+
+    // MCQ data
+    const mcqs=[
+      {q:"Power electronics mainly deals with:",opts:["Signal processing","Power conversion and control","Communication systems","Electromagnetic fields"],a:1},
+      {q:"Forward voltage drop of silicon diode:",opts:["0.1V","0.3V","0.7V","1.5V"],a:2},
+      {q:"An SCR is a:",opts:["2-layer","3-layer","4-layer, 3-terminal","4-layer, 4-terminal"],a:2}
+    ];
+    const mcqContainer=document.getElementById('mcqs');
+    mcqs.forEach((m,i)=>{let d=document.createElement('div');d.className='q';let l=document.createElement('label');l.innerHTML=(i+1)+'. '+m.q;d.appendChild(l);let o=document.createElement('div');o.className='options';m.opts.forEach((opt,j)=>{let id='mcq_'+i+'_'+j;let inp=document.createElement('input');inp.type='radio';inp.name='mcq_'+i;inp.value=j;let lab=document.createElement('label');lab.htmlFor=id;lab.style.fontWeight=500;lab.style.display='flex';lab.style.gap='8px';lab.innerHTML='<input type="radio" id="'+id+'" name="mcq_'+i+'" value="'+j+'"> '+opt;o.appendChild(lab);});d.appendChild(o);mcqContainer.appendChild(d);});
+
+    // Grade button
+    document.getElementById('gradeBtn').addEventListener('click',()=>{
+      let mcqScore=0;mcqs.forEach((m,i)=>{let r=document.querySelector('input[name="mcq_'+i+'"]:checked');if(r&&parseInt(r.value)===m.a)mcqScore++;});
+      let manualTotal=0;let manualMax=0;document.querySelectorAll('.score').forEach(inp=>{let max=0;if(inp.dataset.question?.startsWith('A'))max=4;else if(inp.dataset.question?.startsWith('B'))max=10;else if(inp.dataset.question?.startsWith('C'))max=15;let val=parseFloat(inp.value)||0;manualTotal+=val;manualMax+=max;});
+      let total=mcqScore+manualTotal;let max=mcqs.length+manualMax;let pct=(total/max*100).toFixed(2);
+      document.getElementById('resultArea').innerHTML='<div class="result">MCQs: '+mcqScore+'/'+mcqs.length+'<br>Manual/Auto: '+manualTotal+'/'+manualMax+'<br><strong>Total: '+total+'/'+max+' ('+pct+'%)</strong></div>';
+      localStorage.setItem('examResult',JSON.stringify({total,max,pct,date:new Date().toISOString()}));
+    });
+
+    // Export CSV
+    document.getElementById('saveBtn').addEventListener('click',()=>{
+      const data=new FormData(document.getElementById('examForm'));let csv='field,value\n';for(let [k,v] of data.entries()){csv+=`${k},"${String(v).replace(/\n/g,' ')}"\n`;}
+      const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);let a=document.createElement('a');a.href=url;a.download='exam_results.csv';a.click();URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('printBtn').addEventListener('click',()=>{window.print();});
+  </script>
+</body>
+</html>
